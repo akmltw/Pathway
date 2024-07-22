@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectLinks } from 'store/slice/linkSlice';
 import { Button } from 'components/Button';
@@ -5,7 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import classes from './Shortens.module.scss';
 
 const Shortens = () => {
+    const [copiedLinks, setCopiedLink] = useState(null);
     const links = useSelector(selectLinks);
+
+    const copyToClipboard = (link) => {
+      navigator.clipboard.writeText(link).then(() => {
+        setCopiedLink(link);
+      });
+    };
 
     if (!links?.length) return null;
 
@@ -16,6 +24,7 @@ const Shortens = () => {
                 <AnimatePresence key={index}>
                   <motion.div
                     className={classes.item}
+                    data-active={copiedLinks === item.shorturl}
                     initial={{opacity: 0, height: 0}}
                     animate={{opacity: 1, height: 'auto'}}
                   >
@@ -23,8 +32,9 @@ const Shortens = () => {
                     <span>{item.shorturl}</span>
                     <Button
                       variant="square"
+                      onClick={() => copyToClipboard(item.shorturl)}
                     >
-                      Copy
+                      {copiedLinks === item.shorturl ? 'Copied!' : 'Copy'}
                     </Button>
                   </motion.div>
                 </AnimatePresence>
