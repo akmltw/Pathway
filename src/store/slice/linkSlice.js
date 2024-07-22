@@ -4,8 +4,9 @@ import { API_BASE_URL } from '../../config';
 export const createShortLink = createAsyncThunk(
   'links/createShortLink',
   async (url) => {
-    const response = await fetch(API_BASE_URL + url, {method: 'POST'})
-    return await response.json();
+    const response = await fetch(API_BASE_URL + encodeURIComponent(url), {method: 'GET'});
+    const data = await response.json();
+    return { original_link: url, shorturl: data.shorturl };
   }
 );
 
@@ -27,10 +28,10 @@ const linkSlice = createSlice({
       state.loading = 'loading';
     })
     .addCase(createShortLink.fulfilled, (state, action) => {
-      const {ok, result} = action.payload;
+      const {shorturl} = action.payload;
 
-      if (ok) {
-          state.items.push(result);
+      if (shorturl) {
+          state.items.push(action.payload);
           state.loading = 'idle';
       } else {
           state.loading = 'error';
